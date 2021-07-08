@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:security="http://www.springframework.org/schema/security"
+	xsi:schemaLocation="http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<!-- 인증정보를 가져오는 인터페이스 -->
+	<!-- <bean id="userDetailsService" class="org.springframework.security.core.userdetails.jdbc.JdbcDaoImpl">
+	 	<property name="dataSource" ref="dataSource"/> 
+	</bean> -->
+	
+	
+	<bean id="bcryptPasswordEncoder" class="org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder" />
+	<bean id="customUserDetailsService" class="com.flowerPot.security.CustomUserDetailsService"></bean>
+
+	 <!-- 웹 관련 기능 설정 , 지금은 최소 설정이기 때문에 기본값들이 많이 사용되었습니다 -->
+	<security:http >  <!-- use-expressions 속성은  <intercpet-url>의  access속성에 표현식을 사용할수 있다는 뜻,, false면 access="USER"로 값을 사용해야한다 -->
+		<security:intercept-url pattern="/" access="permitAll"/>  <!-- 주어진 pattern속성으로 주어진 URL에 대해서 access속성의 권한을 요구한다. 모든 URL을 보호하고, 엑세스하기 위해서는 ROLE_USER 역할을 요구한다. 접두어 'ROLE_'이 없어도 동일한 의미이다-->
+		<!-- <security:intercept-url pattern="/member/signUp" access="permitAll"/> -->
+		<security:intercept-url pattern="/member/login" access="permitAll"/>
+		<security:intercept-url pattern="/member/order" access="hasRole('ROLE_USER')"/>
+		<security:intercept-url pattern="/member/point" access="hasRole('ROLE_USER')"/>
+		<security:intercept-url pattern="/member/review" access="hasRole('ROLE_USER')"/>
+		<security:intercept-url pattern="/member/password" access="hasRole('ROLE_USER')"/>
+		<security:intercept-url pattern="/member/myInfo" access="hasRole('ROLE_USER')"/>
+		
+		<!-- 고객센터 권한처리 -->
+		<security:intercept-url pattern="/customerCenter/write" access="hasRole('ROLE_USER')"/>
+		<security:intercept-url pattern="/customerCenter/edit" access="hasRole('ROLE_USER')"/>
+		<security:intercept-url pattern="/customerCenter/delete" access="hasRole('ROLE_USER')"/>
+		
+		<security:intercept-url pattern="/event/dayCheck_ok" access="hasRole('ROLE_USER')"/>
+		
+		<security:intercept-url pattern="/cosmetic/cosmetic_register" access="hasRole('ROLE_BRAND')"/>	
+		<security:intercept-url pattern="/member/login_naver" access="permitAll"/>
+		<security:intercept-url pattern="/lastAdmin/**" access="hasRole('ROLE_ADMIN')"/>
+		<security:intercept-url pattern="/brandAdmin/**" access="hasRole('ROLE_BRAND')"/>
+		
+		<security:form-login username-parameter="id" password-parameter="password" login-page="/member/login" default-target-url="/" authentication-failure-url="/member/login?fail=true"/>
+		<security:logout logout-url="/logout" />
+		<security:csrf disabled="true"/>
+	</security:http>
+	
+	
+	<security:authentication-manager>
+		<security:authentication-provider user-service-ref="customUserDetailsService">
+			<!--  <security:user-service> 
+				<security:user name="user" password="{noop}password" authorities="ROLE_USER" />  스프링 시큐리티 5버전부터 PasswordEncoder라는 존재를 이용하도록 변경되었다.
+				<security:user name="admin" password="{noop}password" authorities="ROLE_ADMIN" />
+			</security:user-service>  -->
+			
+			<!-- <security:jdbc-user-service data-source-ref="dataSource" 
+				users-by-username-query="select id, password from f_member where id = ?"   
+				authorities-by-username-query="select id, authority from f_authority where id = ?"
+			/> -->
+			
+			<!-- 인증을 위한 쿼리 -->  <!-- 권한을 위한 쿼리 -->
+			
+			<security:password-encoder ref="bcryptPasswordEncoder"/>
+		</security:authentication-provider>
+	</security:authentication-manager>
+
+
+</beans>

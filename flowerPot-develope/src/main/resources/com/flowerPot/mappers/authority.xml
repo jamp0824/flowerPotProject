@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="authority">
+	
+	<insert id="au_insertAuthority">
+		insert into f_authority (auno,id,authority) values (auno_seq.nextval,#{id},'ROLE_USER')
+	</insert>
+	
+	<select id="au_selectTotalCount" resultType="int">
+		select count(*) from f_authority 
+	</select>
+	
+	<delete id="au_deleteAuthorityById">
+		delete from f_authority where id=#{id}
+	</delete>
+	
+	<!-- 권한 추가부여 -->
+	<insert id="updateAuthorityById">
+		insert into f_authority  (auno,id,authority) values (auno_seq.nextval,#{id},#{authority})
+	</insert>
+	<select id="selectAuthList" resultType="com.flowerPot.vo.AuthorityVo">
+		select authority from f_authority where id=#{id,jdbcType=VARCHAR}
+	</select>
+</mapper>

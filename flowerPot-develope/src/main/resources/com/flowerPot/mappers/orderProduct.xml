@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.flowerPot.orderProduct.repository.OrderProductDao">
+	
+	<insert id="insertOrderProduct">
+		insert into f_orderProduct (ono,mno,cno,dno,order_num,amount,point,couponName,regdate,final_price,member_rank,brand) 
+		values (ono_seq.nextval,#{mno},#{cno},#{dno,jdbcType=NUMERIC},#{order_num},#{amount},#{point},#{couponName,jdbcType=VARCHAR},sysdate,#{final_price},#{member_rank, jdbcType=VARCHAR},#{brand, jdbcType=VARCHAR})
+		<selectKey keyProperty="ono" order="AFTER" resultType="int"> 
+			select LAST_NUMBER from user_sequences where SEQUENCE_NAME = 'ONO_SEQ'
+		</selectKey>
+	</insert>
+	
+	<insert id="insertOrderProductNoMember">
+		insert into f_orderProduct (ono, cno, dno, order_num, amount,point, couponName, regdate, tel, email, final_price, brand) 
+		values (ono_seq.nextval,#{cno},#{dno,jdbcType=NUMERIC},#{order_num},#{amount},#{point,jdbcType=NUMERIC},#{couponName,jdbcType=VARCHAR},sysdate, #{tel}, #{email}, #{final_price}, #{brand, jdbcType=VARCHAR})
+	</insert>
+	
+	<delete id="deleteAll">
+		delete from f_orderProduct
+	</delete>
+	
+	<select id="selectCount" resultType="int">
+		select count(*) from f_orderProduct
+	</select>
+	
+	<select id="selectListOrderProductByOrderNum" resultType="com.flowerPot.vo.OrderProductVo">
+		select * from f_orderProduct where order_num = #{order_num}
+	</select>
+	
+	<select id="selectListOrderProductByBrand"  resultType="com.flowerPot.vo.OrderProductVo">
+		select * from f_orderProduct where brand = #{brand}
+	</select>
+	
+	<select id="selectListOrderProductByBrandCno" resultType="com.flowerPot.vo.OrderProductVo">
+		select * from f_orderProduct where brand = #{brand} and cno = #{cno}
+	</select>
+	
+	<select id="selectOneByono" resultType="com.flowerPot.vo.OrderProductVo">
+		select * from f_orderProduct where ono = #{ono}
+	</select>
+	
+	<update id="updateOrderProductTOComplete">
+		update f_orderProduct set state = '주문완료', deliver_state = '배송완료' where ono = #{ono}
+	</update>
+	
+	<select id="selectListOrderProductByMno"  resultType="com.flowerPot.vo.OrderProductVo">
+		select * from f_orderProduct where mno = #{mno} order by ono desc
+	</select>
+	
+	<select id="selectListByOrderNum" resultType="com.flowerPot.vo.OrderProductVo">
+		select * from f_orderProduct where order_num = #{order_num} order by ono desc
+	</select>
+	
+	<select id="selectListByOrderCriteria" resultType="com.flowerPot.vo.OrderProductVo">
+		select * from f_orderProduct
+		<where>
+			brand = #{brand} 
+			<if test="cno != 0">
+				and cno = #{cno}
+			</if>
+		</where>
+	</select>
+	
+	<select id="selectListByMno" resultType="com.flowerPot.vo.OrderProductVo">
+		select * from f_orderProduct where mno = #{mno}
+	</select>
+</mapper>
+

@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.flowerPot.admin.dao.BrandMapper">
+	
+		<!-- 중복되는 동적 SQL문에 대한 처리 -->
+	<sql id="search">
+		<!-- 동적 SQL구문 -->
+		<if test="condition == 'company'">
+		WHERE company LIKE '%'||#{keyword}||'%'
+		</if>
+		<if test="condition == 'brandName'">
+		WHERE brandName LIKE '%'||#{keyword}||'%'
+		</if>
+		<if test="condition == 'busNo'">
+		WHERE busNo LIKE '%'||#{keyword}||'%'
+		</if>
+	</sql>
+	
+	<insert id="insertBrand" parameterType="com.flowerPot.admin.vo.BrandVo">
+		insert into f_brand (bno,name,company,brandName,busNo,ceoName,tel,email,postcode,roadAddr,jibunAddr,extraAddr,introduce,regDate) values
+		(bno_seq.nextval,#{name,jdbcType=VARCHAR},#{company},#{brandName},#{busNo},#{ceoName},#{tel},#{email},#{postcode},#{roadAddr},#{jibunAddr},#{extraAddr},#{introduce},sysdate)
+	</insert>
+
+
+	<select id="getBrandList" resultType="com.flowerPot.admin.vo.BrandVo">		
+ 		SELECT * FROM 
+		(SELECT rownum rnum,bno,company,brandName,busNo, ceoName, tel, email, postcode, roadAddr, jibunAddr, extraAddr, introduce, regDate
+		FROM
+		(SELECT * FROM f_brand 
+ 		<include refid="search"/>
+		 ORDER BY bno DESC))
+		WHERE  rnum BETWEEN #{pageStart} AND #{pageEnd}
+	</select>
+	<!-- 페이징,검색처리 소스 기반  오라클 쿼리문-->
+	
+	<!-- 페이징,검색처리 소스 기반  오라클 쿼리문-->
+	<select id="countBrandArticles" resultType="int">
+		SELECT COUNT(*) 
+		FROM f_brand
+		<include refid="search" />
+	</select>
+	
+	<select id="getBrandInfo" resultType="com.flowerPot.admin.vo.BrandVo">
+		SELECT * FROM f_brand WHERE BNO=#{BNO}
+	</select>
+	
+	<update id="modifyBrand">
+		UPDATE f_brand SET 
+		company=#{company}, busNo=#{busNo}, ceoName=#{ceoName},
+		tel=#{tel},email=#{email},postcode=#{postcode},
+		roadAddr=#{roadAddr},jibunAddr=#{jibunAddr},extraAddr=#{extraAddr},detailAddr=#{detailAddr},
+		introduce=#{introduce} WHERE bno=#{bno}
+	</update>
+
+	
+	<update id="deleteBrand">
+		DELETE FROM f_brand  WHERE bno=#{bno}
+	</update>
+	
+	
+	
+</mapper>

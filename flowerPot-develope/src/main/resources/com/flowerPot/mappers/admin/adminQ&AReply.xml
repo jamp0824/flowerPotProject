@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.flowerPot.admin.dao.CReplyMapper">
+
+	<!-- 댓글 등록 -->
+	<insert id="insertReply" parameterType="com.flowerPot.admin.vo.ReplyVo">
+	<!-- parameterType 전달인자 타입 속성은 기본값으로 생략가능 -->
+		insert into comments (rno,ccno,replyer,replytitle,replytext,regdate) values(comment_seq.nextval,#{ccno},'관리자',#{replytitle},#{replytext},sysdate)
+	<!-- sysdate는 오라클 날짜 함수. -->
+	</insert>
+	
+	<!-- 댓글 내용 -->
+	<select id="getReplyCont" resultType="com.flowerPot.admin.vo.ReplyVo">
+	<!-- resultType속성은 반환자료형 -->
+		select * from comments where rno=#{rno}
+	</select>
+	
+	<!-- 댓글 리스트 -->
+	<select id="getReplyContList" resultType="com.flowerPot.admin.vo.ReplyVo">
+	<!-- resultType속성은 반환자료형 -->
+		select * from comments where ccno=#{ccno} order by rno desc
+	</select>
+		
+	<!-- 댓글 수정 -->
+	<update id="updateReply">
+		update comments set replytitle=#{replytitle}, replytext=#{replytext}, updatedate=sysdate where rno = #{rno}
+	</update>
+	
+	<select id="SelectListByCcno" resultType="com.flowerPot.admin.vo.ReplyVo">
+		select * from comments where ccno = #{ccno}
+	</select>
+	
+	
+	<!-- 댓글번호를 기준으로 게시물 번호값 알아내기 -->
+<!-- 	<select id="reply_bno" parameterType="int" resultType="int">
+	select ccno from qa_reply where rno=#{rno}
+	</select> -->
+	
+</mapper>

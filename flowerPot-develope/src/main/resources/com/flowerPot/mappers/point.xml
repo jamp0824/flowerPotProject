@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.flowerPot.point.repository.PointDao">
+	
+	<insert id="insertPoint" >
+		insert into f_point (pno,mno,add_point,order_num,regdate) values (pno_seq.nextval, #{mno}, #{add_point}, #{order_num}, sysdate)
+	</insert>
+	
+	<select id="selectListPointByMno" resultType="com.flowerPot.vo.PointVo">
+		select * from f_point where mno = #{mno}
+	</select>
+</mapper>
+

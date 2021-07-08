@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.flowerPot.customerCenter.repository.CustomerCenterDao" >
+
+	<!-- 리스트 가져오기 -->
+	<select id="SelectListByCategory" resultType="cc">
+		select * from 
+		<trim prefix="(" suffix=")">
+		select f_customerCenter.*, rownum as rnum from f_customerCenter where category = #{n_category, jdbcType=NUMERIC} 
+		<if test='searchName != null'>
+			and title like '%' ||#{SearchName}||'%'
+		</if>
+		 order by ccno desc  
+		</trim> 
+		<![CDATA[ where rnum <= #{pageNum}*#{amount} and rnum > (#{pageNum}-1)*#{amount} ]]>
+	</select>
+	
+	<!--  고객센터 등록 -->
+	<insert id="wirteEnq">
+		insert into f_customerCenter (mno,ccno , title, content,regdate, moddate, category, url) values
+		(#{mno} , ccno_seq.nextval, #{title}, #{content}, sysdate, sysdate, 3, #{url})
+	</insert>
+	
+	<!-- 고객센터등록 -->
+	<insert id="NoImgWriteEnq">
+		insert into f_customerCenter (mno,ccno , title, content,regdate, moddate, category)
+		values (#{mno} ,ccno_seq.nextval, #{title}, #{content}, sysdate, sysdate, 3)
+	</insert>
+	
+	<!--  삭제 -->
+	<delete id="DeleteEnq">
+		delete from f_customerCenter where ccno = #{ccno}
+	</delete>
+	
+	<!-- 수정 -->
+	<update id="EnqUpdate">
+		update f_customerCenter set title = #{title}, content
+		= #{content}, moddate = sysdate where ccno = #{ccno}
+	</update>
+	
+	<!-- 카테고리별 전체 개수 -->
+	<select id="cc_selectCountByCategory" resultType="int">
+		select count(*) from f_customerCenter where category = #{n_category}
+	</select>
+
+	<select id="fq_list" resultType="cc">
+		select* from
+		F_CUSTOMERCENTER
+		where category ='FAQ'
+
+	</select>
+
+	<select id="EnqList" resultType="cc">
+		select ccno, title,
+		to_char(sysdate, 'yyyy-MM-dd')regdate from F_CUSTOMERCENTER where
+		category='enquiry' order by ccno desc
+	</select>
+
+	<select id="notice" resultType="cc">
+		select ccno, title,
+		to_char(sysdate, 'yyyy-MM-dd')regdate from
+		F_CUSTOMERCENTER where
+		category='notice' order by ccno desc
+	</select>
+
+	<select id="searchKeyword" resultType="cc">
+		select * from
+		f_customerCenter where <!-- content like '%'|| #{keyword} || 
+			'%' or -->
+		title
+		like '%' ||#{keyword}||'%'
+	</select>
+
+	<!-- 와일드카드 이렇게 쓰는거임 권누리 까먹지마 등신아 -->
+	
+	<select id="EnqContent" resultType="cc">
+		select * from
+		f_customerCenter where ccno = #{ccno}
+	</select>
+	
+	<select id="noticeContent" resultType="cc">
+		select * from
+		F_CUSTOMERCENTER where category='notice' and ccno = #{ccno}
+	</select>
+	
+	<select id="ResContent" resultType="cc">
+		select * from f_customerCenter where ccno = #{ccno}
+	</select>
+	
+	
+</mapper>
+

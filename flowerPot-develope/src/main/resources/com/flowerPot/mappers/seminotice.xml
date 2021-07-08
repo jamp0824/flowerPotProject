@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper	namespace="com.flowerPot.semiadmin.repository.ISemiNoticeMapper">
+
+	<resultMap id="SemiMap"
+		type="com.flowerPot.semiadmin.model.SemiNoticeVO">
+
+		<id property="sBno" column="s_bno" />
+		<id property="sTitle" column="s_title" />
+		<id property="sContent" column="s_content" />
+		<id property="sWriter" column="s_writer" />
+		<id property="sDate" column="s_date" />
+
+	</resultMap>
+
+	<!-- { 공지사항 게시글 목록 가져오기 -->
+	<select id="getArticles" resultMap="SemiMap">
+		select *
+		from semi_notice
+		order by s_bno asc
+	</select>
+
+	<!-- 공지사항 게시글 삭제하기 } -->
+	<delete id="delete">
+		delete
+		from semi_notice
+		where s_bno = #{sBno}
+	</delete>
+
+
+	<!-- { Review 후기 } -->
+	<select id="getReviewArticles"
+		resultType="com.flowerPot.semiadmin.model.SemiReviewVO">
+		select *
+		from f_cosmeticReview
+	</select>
+
+	<!-- { inventory 재고 현황 } -->
+
+	<select id="getInvenArticles"
+		resultType="com.flowerPot.semiadmin.model.SemiInventoryVO">
+		select *
+		from f_inventory
+	</select>
+
+	<!-- {inventory submit 으로 재고 수량 추가하기 -->
+	<update id="submitInven">
+		update f_inventory
+		set stockNumber = stockNumber + #{plusStock} where cno = #{cno}
+
+	</update>
+
+	<!-- { calendar 전체 목록 출력} -->
+	<select id="getCalendar"
+		resultType="com.flowerPot.semiadmin.model.SemiCalendarVO">
+		select * from f_calendar order by mno asc
+	</select>
+
+	<!-- calendar 일정 추가 } -->
+	<insert id="calendarRegist">
+		insert into f_coupon
+		values (#{mno},#{id},#{title},#{dateChoice},#{content})
+	</insert>
+	
+
+	
+	
+	
+	
+</mapper>

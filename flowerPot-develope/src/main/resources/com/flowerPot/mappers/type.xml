@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.flowerPot.cosmetic.repository.TypeDao">
+	
+	<select id="selectListType" resultType="com.flowerPot.vo.TypeVo">
+		select distinct type from f_type	
+	</select>
+	
+	<select id="selectListSubType" resultType="com.flowerPot.vo.TypeVo">
+		select distinct sub_type from f_type where type = #{type}
+	</select>
+</mapper>

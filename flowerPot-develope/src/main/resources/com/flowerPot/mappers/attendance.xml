@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.flowerPot.attendance.repository.AttendanceDao">
+	
+	<select id="selectListByMno" resultType="com.flowerPot.vo.AttendanceVo">
+		select * from f_attendance where mno = #{mno}
+	</select>
+	
+	<insert id="insertAttendance">
+		insert into f_attendance (mno,attendance_date) values (#{mno},sysdate)
+	</insert>
+	
+</mapper>

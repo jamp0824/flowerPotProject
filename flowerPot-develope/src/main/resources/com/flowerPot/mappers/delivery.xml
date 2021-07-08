@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.flowerPot.delivery.repository.DeliveryDao">
+	
+	<!-- jdbcType=VARCHAR -->
+	<!--  <insert id="insertDescription">
+		insert into f_description (cno,capacity,period,useMethod,nation) values (#{cno},#{capacity},#{period},#{useMethod,jdbcType=VARCHAR},#{nation,jdbcType=VARCHAR})
+	</insert>
+	
+	<delete id="deleteAll">
+		delete from f_description
+	</delete>
+	
+	<select id="selectCount" resultType="int">
+		select count(*) from f_description
+	</select>
+	
+	<select id="selectOneDescriptionByCno" resultType="com.flowerPot.vo.DescriptionVo">
+		select * from f_description where cno = #{cno, jdbcType=NUMERIC}
+	</select>  -->
+	
+	<insert id="insertDelivery">
+		insert into f_delivery (dno,t_code,postcode,street_address,parcel_address,detail_address,more_infomation) 
+		values (dno_seq.nextval,#{t_code, jdbcType=VARCHAR},#{postcode, jdbcType=VARCHAR},#{street_address, jdbcType=VARCHAR},#{parcel_address, jdbcType=VARCHAR},#{detail_address, jdbcType=VARCHAR},#{more_infomation, jdbcType=VARCHAR})
+		<selectKey keyProperty="dno" resultType="int" order="AFTER">
+			select dno_seq.currval from dual
+		</selectKey>
+	</insert>
+	
+	<delete id="deleteAll">
+		delete from f_delivery
+	</delete>
+	
+	<select id="selectCount" resultType="int">
+		select count(*) from f_delivery
+	</select>
+	
+	<select id="selectMemDeliIdInfo" resultType="com.flowerPot.vo.MemberVo"> <!-- 배송조회에 필요한 정보만 새로운객체에 담기 -->
+		select * from f_delivery where id= #{id}
+	</select>
+	
+	<update id="updateStateByDno">
+		update f_delivery set deliver_state = '배송완료' where dno = #{dno}
+	</update>
+	
+</mapper>

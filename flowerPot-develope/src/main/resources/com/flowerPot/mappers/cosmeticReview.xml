@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.flowerPot.cosmeticReview.repository.CosmeticReviewDao">
+	
+	<insert id="insertcosmeticReview">
+		insert into f_cosmeticReview (crno,cno,mno,category,rating,id,nickname,content,title,regdate) 
+		values (crno_seq.nextval,#{cno, jdbcType=NUMERIC},#{mno, jdbcType=NUMERIC},#{category, jdbcType=VARCHAR},#{rating, jdbcType=NUMERIC},#{id, jdbcType=VARCHAR},#{nickname, jdbcType=VARCHAR},#{content, jdbcType=VARCHAR},#{title, jdbcType=VARCHAR},sysdate)
+	</insert>
+
+	<select id="selectListCosmeticReviewListByCno" resultType="com.flowerPot.vo.CosmeticReviewVo">
+		select * from f_cosmeticReview where cno = #{cno}
+	</select>
+	
+	<select id="selectListCosmeticReviewListByCnoRating" resultType="com.flowerPot.vo.CosmeticReviewVo">
+		select * from f_cosmeticReview where cno = #{cno} and category = 'rating'
+	</select>
+	
+	<select id="selectListCosmeticReviewListById" resultType="com.flowerPot.vo.CosmeticReviewVo">
+		select  * from f_cosmeticReview where id = #{id} and category = 'rating'
+	</select>
+	
+	<select id="selectListCosmeticReviewListByBrand" resultType="com.flowerPot.vo.CosmeticReviewVo">
+		select f_cosmeticReview.* from f_cosmeticReview inner join f_cosmetic on f_cosmeticReview.cno = f_cosmetic.cno where brand = #{brand} and category = 'rating'
+	</select>
+	
+	<select id="selectListCosmeticReviewListByMno" resultType="com.flowerPot.vo.CosmeticReviewVo">
+		select  * from f_cosmeticReview where mno = #{mno} and category = 'rating'
+	</select>
+</mapper>

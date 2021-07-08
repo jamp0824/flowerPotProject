@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE configuration
+PUBLIC "-//mybatis.org/DTD Config 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-config.dtd">
+
+<configuration>
+	<typeAliases>
+
+		<typeAlias type="com.flowerPot.vo.MemberVo" alias="mem"/> 
+		<typeAlias type="com.flowerPot.admin.vo.CoupVo" alias="coup"/>
+		<typeAlias type="com.flowerPot.admin.vo.CustomerVo" alias="cstmr"/>
+		<typeAlias type="com.flowerPot.vo.CustomerCenterVo" alias="cc"/>
+
+	</typeAliases>
+
+</configuration>
+

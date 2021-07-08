@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.flowerPot.admin.dao.MemMapper">
+
+	<resultMap type="com.flowerPot.vo.MemberVo" id="memberMap">
+		<result property="id" column="id"/>
+		<result property="password" column="password"/>
+		<result property="name" column="name"/>
+		<collection property="authList" resultMap="authMap"></collection>
+	</resultMap>
+	
+	<resultMap type="com.flowerPot.vo.AuthorityVo" id="authMap">
+		
+		<result property="id" column="id"/>
+		<result property="authority" column="authority"/>
+	</resultMap>
+	
+	<resultMap type="com.flowerPot.admin.vo.EmpVo" id="empMap">
+
+	</resultMap>
+	
+		<!-- 중복되는 동적 SQL문에 대한 처리 -->
+	<sql id="search">
+		<!-- 동적 SQL구문 -->
+		<if test="condition == 'mno'">
+		WHERE mno LIKE '%'||#{keyword}||'%'
+		</if>
+		<if test="condition == 'id'">
+		WHERE id LIKE '%'||#{keyword}||'%'
+		</if>
+		<if test="condition == 'name'">
+		WHERE name LIKE '%'||#{keyword}||'%'
+		</if>
+	</sql>
+	
+	<insert id="m_insertMember">
+		<!-- int mno, String id, String password, String name, String nickname, String address, String email, String gender, String birth, String member_rank, boolean enabled -->
+		insert into f_member (mno,id,password,name,nickname,email,gender,birth,member_rank,reg_date,enabled) values
+		(mno_seq.nextval,#{id},#{password},#{name},#{nickname},#{email},#{gender},#{birth},#{regDate},#{member_rank},#{enabled})
+		<selectKey resultType="int" keyProperty="mno" order="AFTER">
+			select mno_seq.currval from dual
+		</selectKey>
+	</insert>
+	
+	
+	<!-- <select id="getArticleList" resultMap="memberMap">		
+		SELECT * FROM 
+		(SELECT rownum rnum, mno, id, name, nickname, address, email, gender, birth, member_rank, regdate, enabled(
+		FROM 
+		(SELECT * FROM f_member 
+		<include refid="search"/>
+		 ORDER BY mno DESC))
+		WHERE  rnum BETWEEN #{pageStart} AND #{pageEnd}
+	</select> -->
+	
+	<select id="getArticleList" resultType="com.flowerPot.vo.MemberVo">		
+ 		SELECT * FROM 
+		(SELECT rownum rnum, mno, id, name, nickname, email, gender, birth, member_rank, regdate, enabled
+		FROM
+		(SELECT * FROM f_member 
+		<include refid="search"/>
+		 ORDER BY mno DESC))
+		WHERE  rnum BETWEEN #{pageStart} AND #{pageEnd}
+	</select>
+	<!-- 페이징,검색처리 소스 기반  오라클 쿼리문-->
+	
+	<!-- 페이징,검색처리 소스 기반  오라클 쿼리문-->
+	<select id="countArticles" resultType="int">
+		SELECT COUNT(*) 
+		FROM f_member
+		<include refid="search" />
+	</select>
+	
+	<!-- 회원 탈퇴 -->
+	<update id="deleteMember">
+		UPDATE f_member SET enabled='0' WHERE mno=#{mno}
+	</update>
+	<!-- 회원 복구 -->
+	<update id="restoreMember">
+		UPDATE f_member SET enabled='1' WHERE mno=#{mno}
+	</update>
+	
+	
+</mapper>

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:task="http://www.springframework.org/schema/task"
+	xsi:schemaLocation="http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-4.3.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd">
+
+	<!-- <bean name="wordCloudJob" class="org.springframework.scheduling.quartz.JobDetailBean"> 
+		Quartz 1.8.x버전 -->
+	<bean name="wordCloudJob" class="org.springframework.scheduling.quartz.JobDetailFactoryBean"><!-- Quartz 2.x 버전 -->
+		<property name="jobClass">
+			<value>com.flowerPot.domain.CloudJobExecutor</value>
+		</property>
+		<!--jobClass에 넘길 데이터에 위에 선언한 Service 세팅 -->
+		<property name="jobDataAsMap">
+			<map>
+				<entry key="pointService" value-ref="pointService" />
+				<entry key="memberService" value-ref="memberService" />
+			</map>
+		</property>
+	</bean>
+
+	<!-- <bean id="cronTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean"> 
+		Quartz 1.8.x 버전 -->
+	<bean id="cronTrigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean"><!-- Quartz 2.x 버전 -->
+		<property name="jobDetail">
+			<ref bean="wordCloudJob" />
+		</property>
+		<property name="cronExpression">
+			<!-- 매 5분마다 실행 -->
+			<value>0 0/5 * * * ?</value>
+		</property>
+	</bean>
+
+	<bean
+		class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+		<property name="triggers">
+			<list>
+				<ref bean="cronTrigger" />
+			</list>
+		</property>
+	</bean>
+
+</beans>

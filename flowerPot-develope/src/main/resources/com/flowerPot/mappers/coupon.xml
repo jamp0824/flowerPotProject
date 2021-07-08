@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.flowerPot.coupon.repository.CouponDao">
+
+	<select id="selectListAll" resultType="com.flowerPot.vo.CouponVo">
+		select * from f_coupon where enable = 1	
+	</select>
+	
+	<insert id="insertCoupon">
+		insert into f_coupon (couNo, couponName, discountMoney, discountPercent) <!--  start_date, end_date --> 
+		values (couNo_seq.nextval, #{couponName}, #{discountMoney}, #{discountPercent})
+	</insert>
+</mapper>

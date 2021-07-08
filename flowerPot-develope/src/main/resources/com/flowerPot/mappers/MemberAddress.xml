@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.flowerPot.memberAddress.repository.MemberAddressDao">
+	
+	<insert id="insertOrderProduct">
+		
+	</insert>
+	
+	<insert id="insertOrderProductNoMember">
+	
+	</insert>
+	
+	<delete id="deleteAll">
+	
+	</delete>
+	
+	<select id="selectCount" resultType="int">
+		select count(*) from f_MemberAddress
+	</select>
+	<insert id="insertMemberAddress" parameterType="com.flowerPot.vo.MemberAddressVo">
+	insert into f_memberAddress(mno,postcode,street_address,parcel_address,detail_address,more_infomation) values
+	(#{mno},#{postcode, jdbcType=VARCHAR},#{street_address, jdbcType=VARCHAR},#{parcel_address, jdbcType=VARCHAR},#{detail_address, jdbcType=VARCHAR},#{more_infomation, jdbcType=VARCHAR})
+<!-- 	<selectKey resultType="int" keyProperty="mno" order="After">
+	
+	</selectKey> -->
+	</insert>
+	
+	<select id="selectOneMemberAddressByMno" resultType="com.flowerPot.vo.MemberAddressVo">
+		select * from f_MemberAddress where mno = #{mno}
+	</select>
+	
+	<!-- 회원정보 수정처리 -->
+	<update id="updateMemberAddress" parameterType="com.flowerPot.vo.MemberAddressVo">
+	update f_memberAddress SET
+	postcode=#{postcode, jdbcType=VARCHAR},
+	street_address=#{street_address, jdbcType=VARCHAR},
+	parcel_address=#{parcel_address, jdbcType=VARCHAR},
+	detail_address=#{detail_address, jdbcType=VARCHAR},
+	more_infomation=#{more_infomation, jdbcType=VARCHAR} 
+	where mno=#{mno}
+	</update>
+	
+</mapper>
+

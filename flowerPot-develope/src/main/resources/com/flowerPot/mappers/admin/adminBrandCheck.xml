@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.flowerPot.admin.dao.BrandCheckMapper">
+	
+	<!-- 중복 확인 -->
+	<select id="compCheck" resultType="int">
+		SELECT COUNT(*) FROM f_brand 
+		WHERE company = #{company}
+	</select>
+	<select id="brandCheck" resultType="int">
+		SELECT COUNT(*) FROM f_brand 
+		WHERE brandName = #{bName}
+	</select>
+	<select id="busNoCheck" resultType="int">
+		SELECT COUNT(*) FROM f_brand 
+		WHERE busNo = #{busNo}
+	</select>
+	<select id="telCheck" resultType="int">
+		SELECT COUNT(*) FROM f_brand 
+		WHERE tel = #{tel}
+	</select>
+	<select id="emailCheck" resultType="int">
+		SELECT COUNT(*) FROM f_brand 
+		WHERE email = #{email}
+	</select>
+</mapper>

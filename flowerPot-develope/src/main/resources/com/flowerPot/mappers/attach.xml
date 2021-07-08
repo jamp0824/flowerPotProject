@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.flowerPot.attachFile.repository.AttachFileDao">
+	
+	<insert id="insertAttachFile">
+		insert into f_attachFile(atno,cno,uuidName,originalFileName,uploadFolderPath,mappingURL,realName) values 
+		(atno_seq.nextval,#{cno, jdbcType=NUMERIC},#{uuidName, jdbcType=VARCHAR},#{originalFileName, jdbcType=VARCHAR},#{uploadFolderPath, jdbcType=VARCHAR},#{mappingURL, jdbcType=VARCHAR},#{realName, jdbcType=VARCHAR})
+	</insert>
+	
+	<insert id="insertAttachListToEvent">
+		insert into f_attachFile (atno,eno,uuidName,originalFileName,uploadFolderPath,mappingURL,realName) 
+		values (atno_seq.nextval,#{eno, jdbcType=NUMERIC},#{uuidName},#{originalFileName},#{uploadFolderPath},#{mappingURL},#{realName})
+	</insert>
+	
+	<delete id="deleteAll">
+		delete from f_attachFile
+	</delete>
+	
+	<select id="selectCount" resultType="int">
+		select count(*) from f_attachFile
+	</select>
+	
+	<select id="selectMappingURLByCno" resultType="com.flowerPot.vo.AttachFileVo">
+		select f_attachFile.mappingURL from f_attachFile where cno = #{cno}
+	</select>
+</mapper>
+

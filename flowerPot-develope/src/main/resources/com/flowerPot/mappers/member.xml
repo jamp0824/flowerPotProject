@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.flowerPot.member.repository.MemberDao">
+	
+	<resultMap type="com.flowerPot.vo.MemberVo" id="memberMap">
+		<result property="mno" column="mno"/>
+		<result property="id" column="id"/>
+		<result property="password" column="password"/>
+		<result property="name" column="name"/>
+		<result property="nickname" column="nickname"/>
+		<result property="email" column="email"/>
+		<result property="phone" column="phone"/>
+		<result property="tel" column="tel"/>
+		<result property="gender" column="gender"/>
+		<result property="birth" column="birth"/>
+		<result property="member_rank" column="member_rank"/>
+		<result property="regdate" column="regdate"/>
+		<collection property="authList" resultMap="authMap"></collection>
+	</resultMap>
+	
+	<resultMap type="com.flowerPot.vo.AuthorityVo" id="authMap">
+		<result property="id" column="id"/>
+		<result property="authority" column="authority"/>
+	</resultMap>
+	
+	<resultMap type="com.flowerPot.admin.vo.EmpVo" id="empMap">
+	</resultMap>
+	
+		<!-- 중복되는 동적 SQL문에 대한 처리 -->
+	<sql id="search">
+		<!-- 동적 SQL구문 -->
+		<if test="condition == 'mno'">
+		WHERE mno LIKE '%'||#{keyword}||'%'
+		</if>
+		<if test="condition == 'id'">
+		WHERE id LIKE '%'||#{keyword}||'%'
+		</if>
+		<if test="condition == 'name'">
+		WHERE name LIKE '%'||#{keyword}||'%'
+		</if>
+	</sql>
+	
+	<select id="read" resultMap="memberMap">
+		select mem.mno, mem.id, mem.password, mem.name ,auth.authority from f_member mem left outer join f_authority auth on mem.id = auth.id where mem.id = #{id}
+	</select>
+	
+	<!-- 회원들의 권한 목록 -->
+	<select id="getAuthList" resultMap="memberMap">
+		select mem.mno, mem.id, mem.password, mem.name ,auth.authority from f_member mem left outer join f_authority auth on mem.id = auth.id where mem.id = #{id}
+	</select>
+	
+	<insert id="insertMember">
+		<!-- int mno, String id, String password, String name, String nickname, String address, String email, String gender, String birth, String member_rank, boolean enabled -->
+		insert into f_member (mno,id,password,name,nickname,email,gender,tel,birth,member_rank,enabled,regdate) values
+		(mno_seq.nextval,#{id},#{password},#{name, jdbcType=VARCHAR},#{nickname, jdbcType=VARCHAR},#{email, jdbcType=VARCHAR},#{gender, jdbcType=VARCHAR},#{tel, jdbcType=VARCHAR},#{birth, jdbcType=VARCHAR},#{member_rank, jdbcType=VARCHAR},#{enabled, jdbcType=CHAR},sysdate)
+		<selectKey resultType="int" keyProperty="mno" order="AFTER">
+			select mno_seq.currval from dual
+		</selectKey>
+	</insert>
+	
+	<select id="selectTotalCount" resultType="int">
+		select count(*) from f_member
+	</select>
+	
+	<select id="checkId" resultType="int">
+		SELECT COUNT(*) FROM f_member 
+		where id=#{member}
+	</select>
+	
+	<select id="checkEmail" resultType="int">
+		SELECT COUNT(*) FROM f_member 
+		where email=#{member}
+	</select>
+	<insert id="authentication" parameterType="com.flowerPot.member.vo.MemberDTO">
+	insert into memberDTO(USER_ID,MEMBER_PASS,e_MAIL)values(#{user_id},0,#{e_mail})
+	</insert>
+	<select id="checkPhone" resultType="int">
+		SELECT COUNT(*) FROM f_member 
+		where tel=#{member}
+	</select>
+	
+	<delete id="deleteMemberById">
+		delete from f_member where id=#{id}	
+	</delete>
+	
+	<select id="selectOneMemberById" resultType="com.flowerPot.vo.MemberVo">
+		select * from f_member where id= #{id}
+	</select>
+
+	<select id="selectOneDeliMemById" resultType="com.flowerPot.vo.MemberVo"> <!-- 배송조회에 필요한 정보만 새로운객체에 담기 -->
+		select * from f_member where id= #{id}
+	</select>
+	
+	<select id="selectMnoList" resultType="int">
+		select mno from f_member
+	</select>
+	
+	<update id="updateBrandById">
+		update f_member set brand = #{brand} where id = #{id}
+	</update>
+	
+	<!-- 회원정보 상세 조회 -->
+	<select id="viewMember" resultType="com.flowerPot.vo.MemberVo">
+		SELECT
+		*
+		from f_member
+		where id =#{id}
+	</select>
+	<!-- 회원정보 수정처리 -->
+	<update id="updateMember">
+	UPDATE f_member SET 
+	nickname=#{nickname},
+	tel=#{tel}
+	where id=#{id}
+	</update>
+	
+	<update id="updatePassword">
+		UPDATE f_member SET password= #{password } where id=#{id}
+	</update>
+	
+	<update id="updatePoint">
+		update f_member set point = point + #{addpoint} - #{subtractPoint} where mno = #{mno}
+	</update>
+	
+	<select id="selectOneMemberByMno" resultType="com.flowerPot.vo.MemberVo">
+		select * from f_member where mno = #{mno}
+	</select>
+	
+	<select id="selectAllMemberMno" resultType="int"> 
+		select f_member.mno from f_member where enabled = 1
+	</select>
+	
+	<update id="updateRankByMno">
+		update f_member set member_rank = #{member_rank} where mno = #{mno}
+	</update>	
+	
+	<update id="addPoint">
+		update f_member set point = point+50 where mno = #{mno}
+	</update>
+	
+	<select id="selectListAll" resultType="com.flowerPot.vo.MemberVo">
+		select * from 
+		<trim prefix="(" suffix=")"> 
+		select f_member.*,rownum as rnum from f_member 
+		<where> 
+			<if test="searchCategory != null">
+				${searchCategory} like '%'|| #{searchName} || '%'
+			</if>
+		</where> 
+		</trim>
+		<![CDATA[ where rnum >= #{minNum} and rnum <= #{maxNum}  ]]>
+
+	</select>
+</mapper>

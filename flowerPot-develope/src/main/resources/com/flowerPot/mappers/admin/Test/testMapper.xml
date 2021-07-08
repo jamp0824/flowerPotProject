@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.flowerPot.admin.dao.UserMapper">
+	<resultMap type="com.flowerPot.vo.MemberVo" id="memberMap">
+		<result property="id" column="id"/>
+		<result property="password" column="password"/>
+		<result property="name" column="name"/>
+		<collection property="authList" resultMap="authMap"></collection>
+		<collection property="empList" resultMap="empMap"></collection>
+	</resultMap>
+	
+	<resultMap type="com.flowerPot.vo.AuthorityVo" id="authMap">
+		<result property="id" column="id"/>
+		<result property="authority" column="authority"/>
+	</resultMap>
+	
+	<resultMap type="com.flowerPot.admin.vo.DeptVo" id="deptMap">
+		<result property="deptNo" column="deptNo"/>
+		<result property="deptName" column="deptName"/>
+	</resultMap>
+	
+	<resultMap type="com.flowerPot.admin.vo.PoVo" id="poMap">
+		<result property="poNo" column="poNo"/>
+		<result property="poName" column="poName"/>
+	</resultMap>
+	
+	<resultMap type="com.flowerPot.admin.vo.EmpVo" id="empMap">
+		<result property="empNo" column="empNo"/>
+		<result property="empId" column="empId"/>
+		<result property="empName" column="empName"/>
+		<collection property="deptList" resultMap="deptMap"/>
+		<collection property="poList" resultMap="poMap"/>
+	</resultMap>
+
+
+	<!-- 직원 등록 -->
+	<insert id="insertEmpOne">
+		insert into employee (empNo, empId, empName, deptNo, poNo) values (eno_seq.nextval,#{empId},#{empName},#{deptNo},#{poNo})
+	</insert>
+	<!-- 직원 목록 -->
+	<select id="selectEmpList" resultMap="empMap">
+		select emp.empNo, emp.empId, emp.empName, dept.deptName, po.poName from employee emp 
+		left outer join department dept on emp.deptNo = dept.deptNo 
+		left outer join position po on emp.poNo = po.poNo ORDER BY empNo DESC 
+	</select>
+
+	<insert id="insertUserT">
+		insert into tf_member (mno,id,name) values (#{mno},#{id},#{name})
+	</insert>
+	
+	<select id="selectUserT" resultType="com.flowerPot.admin.vo.UserTVO">
+		select * from tf_member order by mno desc
+	</select>
+	
+	<!-- 중복되는 동적 SQL문에 대한 처리 -->
+	<sql id="search">
+		<!-- 동적 SQL구문 -->
+		<if test="condition == 'mno'">
+		WHERE mno LIKE '%'||#{keyword}||'%'
+		</if>
+		<if test="condition == 'id'">
+		WHERE id LIKE '%'||#{keyword}||'%'
+		</if>
+		<if test="condition == 'name'">
+		WHERE name LIKE '%'||#{keyword}||'%'
+		</if>
+	</sql>
+	
+	<!-- 현강 페이징,검색처리 소스 기반  오라클 쿼리문-->
+	<!-- <select id="getArticleList" resultType="com.flowerPot.Admin.vo.UserTVO">		
+		SELECT * FROM 
+		(SELECT rownum rnum, mno, id, name FROM 
+		(SELECT * FROM tf_member 
+		<include refid="search"/>
+		 ORDER BY mno DESC))
+		WHERE  rnum BETWEEN #{pageStart} AND #{pageEnd}
+	</select> -->
+	<!-- 현강 페이징,검색처리 소스 기반  오라클 쿼리문-->
+	<select id="getArticleList" resultType="com.flowerPot.vo.MemberVo">		
+
+ 		SELECT * FROM 
+		(SELECT rownum rnum, mno, id, name, nickname, address, email, gender, birth, member_rank, regdate, enabled
+		FROM
+		(SELECT * FROM f_member 
+		<include refid="search"/>
+		 ORDER BY mno DESC))
+		WHERE  rnum BETWEEN #{pageStart} AND #{pageEnd}
+	</select>
+	<!-- 현강 페이징,검색처리 소스 기반  오라클 쿼리문-->
+	
+	<!-- 현강 페이징,검색처리 소스 기반  오라클 쿼리문-->
+	<select id="countArticles" resultType="int">
+		SELECT COUNT(*) 
+		FROM f_member
+		<include refid="search" />
+	</select>
+	
+</mapper>

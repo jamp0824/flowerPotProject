@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mybatis-spring="http://mybatis.org/schema/mybatis-spring"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xsi:schemaLocation="http://mybatis.org/schema/mybatis-spring http://mybatis.org/schema/mybatis-spring-1.2.xsd
+		http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.3.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.3.xsd">
+	
+	<context:property-placeholder location="classpath:/config.properties"/>
+	
+	<!-- Root Context: defines shared resources visible to all other web components -->
+	<bean id="hikariConfig" class="com.zaxxer.hikari.HikariConfig">
+		<property name="driverClassName" value="${db.driverClassName}"></property>
+		<property name="jdbcUrl" value="${db.jdbcUrl}"></property>
+		<property name="username" value="${db.username}"></property>
+		<property name="password" value="${db.password}"></property>
+
+	</bean>
+	<!-- <bean id="hikariConfig" class="com.zaxxer.hikari.HikariConfig">
+		<property name="driverClassName" value="net.sf.log4jdbc.sql.jdbcapi.DriverSpy"></property>
+		<property name="jdbcUrl" value="jdbc:log4jdbc:oracle:thin:@localhost:1521:XE"></property>
+		<property name="username" value="week"></property>
+		<property name="password" value="week"></property>
+
+	</bean>  -->
+
+	<!-- HikariCP configuration -->
+	<bean id="dataSource" class="com.zaxxer.hikari.HikariDataSource" destroy-method="close">
+		<constructor-arg ref="hikariConfig" />
+	</bean>
+
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSource"></property>
+		<property name="configLocation" value="classpath:/mybatis-config.xml" />
+		<!-- classpath경로는 이클립스 가상경로가 src/main/resources 이다. 이 경로에 있는 mybatis-config.xml 
+			파일을 읽어들임 이 파일의 기능은 데이터 저장빈 클래스의 객체명 별칭을 관리한다. -->
+		<property name="mapperLocations"
+			value="classpath:/com/flowerPot/mappers/*.xml" />
+		<!-- mybatis 쿼리문을 담는 매퍼태그 xml위치 -->
+	</bean>	
+	
+	<bean id="sqlSession" class="org.mybatis.spring.SqlSessionTemplate" destroy-method="clearCache">
+		<constructor-arg name="sqlSessionFactory"
+			ref="sqlSessionFactory" />
+		<!-- constructor-arg의 뜻은 생성자를 통한 의존성 주입 => DI -->
+	</bean>
+	
+	
+	<context:component-scan base-package="com.flowerPot.test"></context:component-scan>
+	<context:component-scan base-package="com.flowerPot.service"></context:component-scan>
+	<context:component-scan base-package="com.flowerPot.dao"></context:component-scan>
+	<context:component-scan base-package="com.flowerPot.security"></context:component-scan>
+		
+	<!-- aop설정 -->
+	<context:annotation-config></context:annotation-config>
+	<context:component-scan base-package="org.zerock.service"></context:component-scan>
+	<context:component-scan base-package="org.zerock.aop"></context:component-scan>
+	<aop:aspectj-autoproxy></aop:aspectj-autoproxy>
+	<!-- aop설정 -->
+	
+	<!-- 트랜잭션설정 -->
+	<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource"></property>
+	</bean>
+	<tx:annotation-driven/>
+	<!-- 트랜잭션설정 -->
+	
+	<!-- 컴포넌트 스캔 -->
+	
+	<context:component-scan base-package="com.flowerPot.attachFile.service"/>	
+	<mybatis-spring:scan base-package="com.flowerPot.attachFile.repository"/>
+	
+	<context:component-scan base-package="com.flowerPot.cosmetic.service"/>	
+	<mybatis-spring:scan base-package="com.flowerPot.cosmetic.repository"/>
+	
+	<context:component-scan base-package="com.flowerPot.description.service"/>	
+	<mybatis-spring:scan base-package="com.flowerPot.description.repository"/>
+	
+	<context:component-scan base-package="com.flowerPot.cosmeticReview.service"/>	
+	<mybatis-spring:scan base-package="com.flowerPot.cosmeticReview.repository"/>
+	
+	<context:component-scan base-package="com.flowerPot.magazine.service"/>	
+	<mybatis-spring:scan base-package="com.flowerPot.magazine.repository"/>
+	
+	<context:component-scan base-package="com.flowerPot.delivery.service"/>	
+	<mybatis-spring:scan base-package="com.flowerPot.delivery.repository" />
+	
+	<context:component-scan base-package="com.flowerPot.orderProduct.service"/>	
+	<mybatis-spring:scan base-package="com.flowerPot.orderProduct.repository" />
+
+<context:component-scan base-package="com.flowerPot.semiadmin.service"/>	
+	<mybatis-spring:scan base-package="com.flowerPot.semiadmin.repository"/>
+	<!-- /컴포넌트 스캔 -->	
+	
+</beans>

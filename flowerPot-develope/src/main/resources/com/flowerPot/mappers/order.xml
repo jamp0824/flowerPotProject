@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.flowerPot.order.repository.OrderDao">
+	
+	<insert id="insertOrder">
+		insert into f_order (orderno, mno, dno, order_num, final_price, regdate) values (orderno_seq.nextval, #{mno, jdbcType=NUMERIC}, #{dno},#{order_num},#{final_price}, sysdate)
+	</insert>
+	
+	<select id="selectListOrderByMno" resultType="com.flowerPot.vo.OrderVo">
+		select * from f_order where mno = #{mno} order by orderno desc
+	</select>
+</mapper>
+

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.flowerPot.admin.dao.DeliveryMapper">
+
+	<!-- 쿠폰발급시 발급대상 회원의 ID를 검색하기 위한 쿼리문 -->
+	<select id="selectMemOne" resultType="mem">
+		SELECT * FROM f_member WHERE id = #{id}
+	</select>
+		
+	<select id="selectDeliveryIdInfo" resultType="mem">
+	select f_member.name, f_delivery.t_code,f_delivery.t_invoice 
+	from f_member inner join f_delivery on f_member.id = f_delivery.id 
+	where f_member.id = #{id}
+	</select>
+</mapper>

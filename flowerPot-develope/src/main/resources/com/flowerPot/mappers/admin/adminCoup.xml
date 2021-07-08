@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.flowerPot.admin.dao.CoupMapper">
+
+	<sql id="search">
+		<if test="condition == 'couponName'"> 
+		WHERE couponName LIKE '%'||#{keyword}||'%' 
+		</if>
+	</sql>
+	
+	<insert id="couponRegist">
+		INSERT INTO f_coupon (couNo,couponName,discountMoney,discountPercent,startDate,endDate ) values 
+		(couNo_seq.nextval,#{couponName},#{discountMoney,jdbcType=INTEGER},#{discountPercent,jdbcType=INTEGER},#{startDate},#{endDate})
+	</insert>
+	
+	<select id="selectCoupList" resultType="coup">
+		SELECT * FROM 
+		(SELECT rownum rnum, couNo, couponName, discountMoney, discountPercent, startDate, endDate
+		FROM
+		(SELECT * FROM f_coupon 
+		<include refid="search"/>
+		 ORDER BY couNo DESC))
+		WHERE  rnum BETWEEN #{pageStart} AND #{pageEnd}
+	</select>
+	<!-- 쿠폰발급시 발급대상 회원의 ID를 검색하기 위한 쿼리문 -->
+	<select id="selectMemOne" resultType="com.flowerPot.vo.MemberVo">
+		SELECT * FROM f_member WHERE id = #{id}
+	</select>
+	
+	<select id="countCouponArticles" resultType="int">
+		SELECT COUNT(*) FROM f_coupon
+	</select>
+	
+	<insert id="insertCouponToMember">
+		insert into f_hasCoupon (hasCno,couNo,mno) values (hasCno_seq.nextval,#{couNo},#{mno})
+	</insert>
+	
+	<select id="selectListHasCoupListByMno" resultType="com.flowerPot.vo.HasCouponVo">
+		select * from f_hasCoupon where mno = #{mno}
+	</select>
+	
+	<select id="selectCoupListByCouno" resultType="com.flowerPot.admin.vo.CoupVo">
+		select * from f_coupon where couNo = #{couNo}
+	</select>
+	
+	<select id="selectOneCouponByName" resultType="com.flowerPot.admin.vo.CoupVo">
+		select * from f_coupon where couponName = #{couponName}
+	</select>
+	
+	<delete id="deleteCoupon">
+		delete from f_hasCoupon where mno = #{mno} and couNo = #{couNo}
+	</delete>
+	<!-- <select id="selectOneHasCoupon">
+		select * from f_hasCoupon where;
+	</select> -->
+	
+	<select id="selectListCoupoBymno" resultType="com.flowerPot.admin.vo.CoupVo">
+		select f_coupon.* from f_hasCoupon inner join f_coupon on f_hasCoupon.couNo = f_coupon.couNo where mno = #{mno}
+	</select>
+</mapper>

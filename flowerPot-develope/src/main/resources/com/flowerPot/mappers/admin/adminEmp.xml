@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.flowerPot.admin.dao.EmpMapper">
+
+	<resultMap type="com.flowerPot.vo.MemberVo" id="memberMap">
+		<result property="id" column="id"/>
+		<result property="password" column="password"/>
+		<result property="name" column="name"/>
+		<collection property="authList" resultMap="authMap"></collection>
+		<collection property="empList" resultMap="empMap"></collection>
+	</resultMap>
+	
+	<resultMap type="com.flowerPot.vo.AuthorityVo" id="authMap">
+		<result property="id" column="id"/>
+		<result property="authority" column="authority"/>
+	</resultMap>
+	
+	<resultMap type="com.flowerPot.admin.vo.DeptVo" id="deptMap">
+		<result property="deptNo" column="deptNo"/>
+		<result property="deptName" column="deptName"/>
+	</resultMap>
+	
+	<resultMap type="com.flowerPot.admin.vo.PoVo" id="poMap">
+		<result property="poNo" column="poNo"/>
+		<result property="poName" column="poName"/>
+	</resultMap>
+	
+	<resultMap type="com.flowerPot.admin.vo.EmpVo" id="empMap">
+		<result property="empNo" column="empNo"/>
+		<result property="empEnabled" column="empEnabled"/>
+		<result property="empId" column="empId"/>
+		<result property="empName" column="empName"/>
+		<collection property="deptList" resultMap="deptMap"/>
+		<collection property="poList" resultMap="poMap"/>
+	</resultMap>
+
+
+	<!-- 직원 등록 -->
+	<insert id="insertEmpOne">
+		insert into employee (empNo, empEnabled, empName, deptNo, poNo) values (eno_seq.nextval,'1',#{empName},#{deptNo},#{poNo})
+	</insert>
+	<!-- 직원 목록 -->
+	<!-- <select id="selectEmpList" resultMap="empMap">
+ 		select emp.empNo, emp.empId, emp.empName, dept.deptName, po.poName from employee emp 
+		left outer join department dept on emp.deptNo = dept.deptNo 
+		left outer join position po on emp.poNo = po.poNo ORDER BY empNo DESC
+	</select> -->
+
+	<!-- <select id="selectEmpList" resultMap="empMap">
+		Select * from
+		(select rownum rnum, emp.empNo, emp.empId, emp.empName, dept.deptName, po.poName from employee emp 
+		(select * from employee emp 
+		left outer join department dept on emp.deptNo = dept.deptNo 
+		left outer join position po on emp.poNo = po.poNo 
+		<include refid="search"/>
+		ORDER BY empNo DESC))
+		WHERE  rnum BETWEEN #{pageStart} AND #{pageEnd}
+	</select> -->
+	
+	<select id="selectEmpList" resultMap="empMap">
+		select * from
+		(select rownum rnum, empA.empNo, empA.empEnabled, empA.empId, empA.empName, empA.deptName, empA.poName from 
+													<!--empId는 나중에 member 아이디가 발급되었을 때 트랜잭션작업으로 추가되어야함 안그러면 이곳이 3중 쿼리가될것임. -->
+		(select * from employee emp 
+		left outer join department dept on emp.deptNo = dept.deptNo 
+		left outer join position po on emp.poNo = po.poNo 
+		<include refid="search"/>
+		ORDER BY empNo DESC) empA )
+		WHERE  rnum BETWEEN #{pageStart} AND #{pageEnd}
+	</select>
+	
+	<!--  -->
+	<update id="addEmpId">
+		update employee set empId=#{empId} WHERE empNo=#{empNo}
+	</update>
+	
+	
+	<select id="getArticleList" resultType="com.flowerPot.vo.MemberVo">		
+ 		SELECT * FROM 
+		(SELECT rownum rnum, mno, id, name, nickname, address, email, gender, birth, member_rank, regdate, enabled
+		FROM
+		(SELECT * FROM f_member 
+		<include refid="search"/>
+		 ORDER BY mno DESC))
+		WHERE  rnum BETWEEN #{pageStart} AND #{pageEnd}
+	</select>
+	
+	<!-- 직원 삭제 -->
+	<update id="deleteEmpOne" parameterType="com.flowerPot.admin.vo.EmpVo">
+		UPDATE employee SET empEnabled='0' WHERE empNo=#{empNo}
+	</update>
+	
+	<!-- 직원 복구 -->
+	<update id="restoreEmpOne" parameterType="com.flowerPot.admin.vo.EmpVo">
+		UPDATE employee SET empEnabled='1' WHERE empNo=#{empNo}
+	</update>
+	
+	<!-- 권한조회 -->
+	<select id="selectEmpAuth" resultType="com.flowerPot.vo.AuthorityVo">
+		select auth.authority from f_member mem left outer join f_authority auth on mem.id = auth.id
+	</select>
+	
+	<!-- 직원중 회원가입되있는 사람을 기준으로 관리자 권한을 준다. -->
+	<insert id="giveAdminAuth">
+		insert into f_authority (auno,id,authority) values (auno_seq.nextval,#{id},'ROLE_ADMIN')
+	</insert>
+	
+	
+	
+	<!-- 중복되는 동적 SQL문에 대한 처리 -->
+	<sql id="search">
+		<!-- 동적 SQL구문 -->
+		<if test="condition == 'empNo'">
+		WHERE empNo LIKE '%'||#{keyword}||'%'
+		</if>
+		<if test="condition == 'empId'">
+		WHERE empId LIKE '%'||#{keyword}||'%'
+		</if>
+		<if test="condition == 'empName'">
+		WHERE empName LIKE '%'||#{keyword}||'%'
+		</if>
+	</sql>
+	
+
+	<select id="countArticles" resultType="int">
+		SELECT COUNT(*) FROM 
+		(select * from employee emp 
+		left outer join department dept on emp.deptNo = dept.deptNo 
+		left outer join position po on emp.poNo = po.poNo)empA
+		<include refid="search" />
+	</select>
+	
+</mapper>

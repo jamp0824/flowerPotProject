@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.flowerPot.admin.dao.CFaQMapper">
+	<!-- 검색기능 조건절 -->
+	<sql id="search">
+		<if test="condition == 'ccno'"> 
+		WHERE ccno LIKE '%'||#{keyword}||'%' 
+		</if>
+		<if test="condition == 'title'"> 
+		WHERE title LIKE '%'||#{keyword}||'%' 
+		</if>
+		<if test="condition == 'ccnoTitle'">
+		WHERE ccno LIKE '%'||#{keyword}||'%' 
+		 OR title LIKE '%'||#{keyword}||'%'
+		</if>
+	</sql>
+	
+	<!-- 공지사항 추가 -->
+	<insert id="insertFaQ" parameterType="cstmr"><!-- 공지사항은 category가 1 -->
+		INSERT INTO f_customerCenter (ccno,title,content,regDate,category)
+		VALUES (ccno_seq.nextval,#{title},#{content},sysdate,2)
+	</insert>
+	
+	
+	<!-- FAQ 내용 가져오기 -->
+	<select id="getFaQCont" resultType="cstmr">
+		SELECT * 
+		FROM f_customerCenter 
+		WHERE ccno=#{ccno}
+	</select>
+	
+	<!-- FAQ 내용 수정 -->
+	<update id="modifyFaQ" parameterType="cstmr">
+		UPDATE f_customerCenter 
+		SET title=#{title},content=#{content},modDate=sysdate 
+		WHERE ccno=#{ccno}
+	</update>
+	
+	<!-- FAQ 삭제 -->
+	<delete id="delFaQ" parameterType="int">
+		DELETE FROM f_customerCenter
+		where ccno=#{ccno}
+	</delete>
+
+	<!-- FAQ 목록,페이징,검색기능 -->
+	<select id="selectFaQList" resultType="cstmr">
+		SELECT * FROM
+		(SELECT ROWNUM rNUM, ccno, title, regDate, modDate FROM
+		(SELECT * FROM f_customerCenter
+		<include refid="search"/>
+		)WHERE category=2 ORDER BY ccno DESC)
+		WHERE rNum BETWEEN #{pageStart} AND #{pageEnd} 
+	</select>
+	<select id="countFAQArticles"  resultType="int">
+		SELECT COUNT(*) 
+		FROM (SELECT * FROM f_customerCenter WHERE category=2)
+		<include refid="search" />
+	</select>
+	<!-- FAQ 목록,페이징,검색기능 -->
+</mapper>

@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.flowerPot.cosmetic.repository.CosmeticDao">
+
+	<insert id="insertCosmetic">
+		insert into f_cosmetic (cno,name,type, sub_type ,code,brand,skinType,content,price,regdate) values 
+		(cno_seq.nextval,#{name},#{type},#{sub_type,jdbcType=VARCHAR}, #{code,jdbcType=VARCHAR},#{brand},#{skinType},#{content, jdbcType=VARCHAR},#{price},sysdate)
+
+		<selectKey resultType="int" order="AFTER" keyProperty="cno">
+			select cno_seq.currval from dual
+			<!-- select cno from f_cosmetic where -->
+		</selectKey>
+	</insert>
+
+	<delete id="deleteAll">
+		delete from f_cosmetic
+	</delete>
+
+	<delete id="deleteByName">
+		delete from f_cosmetic where name= #{name}
+	</delete>
+
+	<select id="selectCount" resultType="int">
+		select count(*) from
+		f_cosmetic
+	</select>
+	
+	<select id="selectListCosmeticByCategory2" resultType="com.flowerPot.vo.CosmeticVo">
+		select * from f_cosmetic 
+		<where>
+			type = #{type, jdbcType=VARCHAR}
+			<if test="sub_type != 'All'">
+				and sub_type = #{sub_type}
+			</if>
+			<if test="brand != 'All'">
+				and brand = #{brand}
+			</if>
+			<if test="skinType != 'All'">
+				and skinType = #{skinType}
+			</if>
+		</where>
+	</select>
+
+	<select id="selectListCosmeticByCategory" resultType="com.flowerPot.vo.CosmeticVo">
+		select c.* from
+		<trim prefix="(" suffix=")">
+		select c.*, rownum as rnum from
+			<trim prefix="(" suffix=")">
+			select f_cosmetic.* from f_cosmetic
+				<where>
+					
+					<if test="type != 'All'">
+						type = #{type}
+					</if>
+					<if test="type == 'All'">
+						type is not null
+					</if>
+					<if test="sub_type != 'All'">
+						and sub_type = #{sub_type}
+					</if>
+					<if test="brand != 'All'">
+						and brand = #{brand}
+					</if>
+					<if test="skinType != 'All'">
+						and skinType = #{skinType}
+					</if>
+				</where>
+				<choose>
+					<when test="filter == '인기순'">
+						order by hits desc
+					</when>
+					<when test="filter == '최신순'">
+						order by regdate desc
+					</when>
+					<when test="filter == '낮은가격순'">
+						order by price
+					</when>
+					<when test="filter == '높은가격순'">
+						order by price desc
+					</when>
+					<otherwise>
+						order by cno desc
+					</otherwise>
+				</choose>
+			</trim> 
+			c
+		</trim> 
+		<![CDATA[c where rnum > #{amount}*(#{pageNum}-1) and rnum <= #{amount}*#{pageNum} ]]>
+	</select>
+
+	<resultMap type="com.flowerPot.vo.CosmeticVo" id="cosmetic">
+		<result property="cno" column="cno" />
+		<result property="name" column="name" />
+		<result property="code" column="code" />
+		<result property="type" column="type" />
+		<result property="brand" column="brand" />
+		<result property="content" column="content" />
+		<result property="skinType" column="skinType" />
+		<result property="price" column="price" />
+		<result property="discountPersent" column="discountPersent" />
+		<result property="stockNumber" column="stockNumber" />
+		<result property="hits" column="hits" />
+		<result property="likey" column="likey" />
+		<result property="enable" column="enable" />
+		<result property="regdate" column="regdate" />
+		<result property="tag" column="tag" />
+		<collection property="mappingList" resultMap="mapping"></collection>
+	</resultMap>
+
+	<resultMap type="string" id="mapping">
+		<result property="mappingURL" column="mappingURL" />
+	</resultMap>
+
+	<select id="selectOneCosmeticByCno" resultMap="cosmetic">
+		select c.*,a.mappingURL from f_cosmetic c left outer join f_attachFile
+		a on c.cno=a.cno where c.cno = #{cno, jdbcType=NUMERIC}
+		<!-- select * from f_cosmetic where cno = #{cno, jdbcType=NUMERIC} -->
+		<!--  1day 1commit -->
+	</select>
+
+	<update id="updateCosmeticHitsByCno">
+		update f_cosmetic set hits = hits+1 where cno =
+		#{cno}
+	</update>
+	
+	<select id="selectCountByCategory" resultType="int">
+	 	select count(*) from f_cosmetic
+	 		<where>
+			type = #{type, jdbcType=VARCHAR}
+				<if test="sub_type != 'All'">
+					and sub_type = #{sub_type}
+				</if>
+				<if test="brand != 'All'">
+					and brand = #{brand}
+				</if>
+				<if test="skinType != 'All'">
+					and skinType = #{skinType}
+				</if>
+			</where>
+	</select>
+	
+	<update id="updateHits">
+		update f_cosmetic set hits = hits + 1 where cno = #{cno}
+	</update>
+
+	<!-- { productManage 상품 } -->
+	<select id="getProductlist" resultType="com.flowerPot.vo.CosmeticVo">
+		select cno,name,hits,likey from f_cosmetic 
+	</select>
+
+	<update id="updateLikey">
+		update f_cosmetic set likey = likey + 1 where cno = #{cno}
+	</update>
+	
+	<update id="updateCosmeticStock">
+		update f_cosmetic set stockNumber = stockNumber + #{plusStock}, discountPersent = #{discountPersent} where cno = #{cno}
+	</update>
+	
+	<select id="selectListCosmetic" resultType="com.flowerPot.vo.CosmeticVo">
+		select * from f_cosmetic
+	</select>
+	
+	<select id="selectListCosmeticByBrand" resultType="com.flowerPot.vo.CosmeticVo">
+		select * from f_cosmetic where brand = #{brand}
+	</select>
+	
+	<select id="selectCosmeticByName" resultType="com.flowerPot.vo.CosmeticVo">
+		select * from f_cosmetic where name = #{name}
+	</select>
+	
+	<update id="updateCosmeticByCno">
+		update f_cosmetic set name = #{name},price = #{price},discountPersent = #{discountPersent},stockNumber = stockNumber + #{stockNumber},content = #{content} where cno = #{cno}
+	</update>
+</mapper>
+
+	<!-- <sql id="list">
+		select rownum as rnum, f_cosmetic.* from f_cosmetic
+		<choose>
+			<when test="sub_type != 'All'">
+				where type = #{type, jdbcType=VARCHAR} and sub_type = #{sub_type}
+			</when>
+			<when test="brand != 'All'">
+				where type = #{type, jdbcType=VARCHAR} and brand = #{brand}
+			</when>
+			<when test="skinType != 'All'">
+				where type = #{type, jdbcType=VARCHAR} and skinType = #{skinType}
+			</when>
+		</choose>
+		order by cno desc
+	</sql>  -->
